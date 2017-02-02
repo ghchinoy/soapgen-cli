@@ -30,4 +30,4 @@ The output will show up in the `target` directory.
 
 After building, this will output request XMLs, with example/dummy values, to the dir `test`
 
-    java -jar target/soapgen-cli-0.0.2.jar http://graphical.weather.gov/xml/DWMLgen/wsdl/ndfdXML.wsdl -d test -e
+    java -jar target/soapgen-cli-0.2.1.jar http://graphical.weather.gov/xml/DWMLgen/wsdl/ndfdXML.wsdl -d test -e
