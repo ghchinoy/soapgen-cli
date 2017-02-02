@@ -6,10 +6,11 @@ A tool to produce XML Request messages from a given WSDL.
 ```
 usage: soapgen [OPTIONS] <WSDL>
  -b,--binding <BINDING>   explicit choice of binding localpart name to use
- -dir,--outdir <OUTDIR>   directory for output
+ -d,--outdir <OUTDIR>     directory for output
+    --debug               Shows debug information
  -e,--examples            Generate example content
  -h,--headers             Add headers
- -help                    print this message
+    --help                prints this message
  -o,--optionals           Generate optional elements
  -s,--skipcomments        Skip comments
 ```
@@ -29,4 +30,4 @@ The output will show up in the `target` directory.
 
 After building, this will output request XMLs, with example/dummy values, to the dir `test`
 
-    java -jar target/soapgen-cli-0.0.1.jar http://graphical.weather.gov/xml/DWMLgen/wsdl/ndfdXML.wsdl -dir test -e
+    java -jar target/soapgen-cli-0.0.2.jar http://graphical.weather.gov/xml/DWMLgen/wsdl/ndfdXML.wsdl -d test -e
