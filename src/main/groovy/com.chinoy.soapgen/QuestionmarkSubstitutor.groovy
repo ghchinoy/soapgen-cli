@@ -15,7 +15,11 @@ class QuestionmarkSubstitutor {
                         println "$counter ${el.name()}"
                     }
                     // ftl format
-                    el.replaceBody "\${${el.name()}}"
+                    if (el.name() != "Body") {
+                        if (el.name() != "Envelope") {
+                            el.replaceBody "\${${el.name()}}"
+                        }
+                    }
             }
         return toPrettyXml(slurper);
     }
