@@ -18,7 +18,7 @@ App, added log4j support, as reficio/soap-ws required it, with a properties file
 
 Using Java7 Files and Paths :)
 
-Added Groovy to substitute `?` with element name FreeMarker Template slug; had to modify pom to include Groovy and structure for groovy file location
+Added Groovy to substitute `?` with element name FreeMarker Template slug; had to modify [pom to include Groovy](https://github.com/groovy/GMavenPlus/wiki/Examples) and structure for groovy file location
 
 ## Examples WSDLs for testing
 
