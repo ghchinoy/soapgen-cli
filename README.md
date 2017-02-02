@@ -1,6 +1,6 @@
 # soapgen
 
-A tool to produce XML Request messages from a given WSDL.
+A tool to produce XML Request messages with FreeMarker Template slugs from a given WSDL.
 
 
 ```
