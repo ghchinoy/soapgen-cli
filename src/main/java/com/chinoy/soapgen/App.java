@@ -6,13 +6,16 @@ import org.reficio.ws.SoapContext;
 import org.reficio.ws.builder.SoapBuilder;
 import org.reficio.ws.builder.SoapOperation;
 import org.reficio.ws.builder.core.Wsdl;
+import org.xml.sax.SAXException;
 
 import javax.xml.namespace.QName;
+import javax.xml.parsers.ParserConfigurationException;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
+
 
 public class App
 {
@@ -21,17 +24,16 @@ public class App
         BasicConfigurator.configure();
         final Options options = new Options();
 
-        Option optionHelp = new Option("help", "print this message");
+        Option optionHelp = new Option(null, "help", false,"prints this message");
 
-        /*
-        Option optionDebug = Option.builder("d")
+        Option optionDebug = Option.builder(null)
                 .longOpt( "debug")
                 .desc( "Shows debug information"  )
                 .hasArg(false)
                 .argName( "DEBUG" )
                 .build();
-        */
 
+        // SOAP headers, -h, --headers
         Option optionIncludeHeaders = Option.builder("h")
                 .longOpt("headers")
                 .desc("Add headers")
@@ -39,6 +41,7 @@ public class App
                 .argName("HEADERS")
                 .build();
 
+        // Skip comments, -s, --skipcomments
         Option optionSkipComments = Option.builder("s")
                 .longOpt("skipcomments")
                 .desc("Skip comments")
@@ -60,7 +63,7 @@ public class App
                 .argName("OPTIONALS")
                 .build();
 
-        Option optionOutDir = Option.builder("dir")
+        Option optionOutDir = Option.builder("d")
                 .longOpt("outdir")
                 .desc("directory for output")
                 .hasArg()
@@ -80,7 +83,7 @@ public class App
         options.addOption(optionGenerateExamples);
         options.addOption(optionSkipComments);
         options.addOption(optionIncludeHeaders);
-        //options.addOption(optionDebug);
+        options.addOption(optionDebug);
         options.addOption(optionHelp);
 
         CommandLineParser parser = new DefaultParser();
@@ -99,7 +102,7 @@ public class App
             debug = headers = skipcomments = examples = optionals = false;
             String outputdir = ".";
             // debug
-            if (cmd.hasOption("d")) {
+            if (cmd.hasOption("debug")) {
                 debug = true;
             }
             if (cmd.hasOption("h")) {
@@ -114,8 +117,8 @@ public class App
             if (cmd.hasOption("o")) {
                 optionals = true;
             }
-            if (cmd.hasOption("dir")) {
-                outputdir = cmd.getOptionValue("dir");
+            if (cmd.hasOption("d")) {
+                outputdir = cmd.getOptionValue("d");
             }
 
             String[] remainingArguments = cmd.getArgs();
@@ -152,26 +155,37 @@ public class App
                     .exampleContent(examples)
                     .build();
 
+            QuestionmarkSubstitutor sub = new QuestionmarkSubstitutor();
+
             List<SoapOperation> operations = builder.getOperations(); // (5)
             System.out.println("Operations available:");
             for (int i = 0; i < operations.size(); i++) {
                 String name = operations.get(i).getOperationName();
                 SoapOperation operation = builder.operation().name(name).find();
 
+                String requestxml = builder.buildInputMessage(operation, context);
+
+                if (!cmd.hasOption("e")) { // no example content
+                    requestxml = sub.ReplaceWithNameSlug(requestxml, debug);
+                }
+
                 // Request
                 Path outdirpath = Paths.get(outputdir).toAbsolutePath();
                 Files.createDirectories(outdirpath);
 
+                // Requests
                 String request = name + "_Request.xml";
-                String response = name + "_Response.xml";
-
                 System.out.println("Writing " + request + " ...");
                 Path requestout = outdirpath.resolve(request);
-                Files.write(requestout, builder.buildInputMessage(operation, context).getBytes());
+                Files.write(requestout, requestxml.getBytes());
 
+                // Responses
+                /*
+                String response = name + "_Response.xml";
                 System.out.println("Writing " + response + " ...");
                 Path responseout = outdirpath.resolve(response);
                 Files.write(responseout, builder.buildOutputMessage(operation, context).getBytes());
+                */
 
                 //PrintWriter writer = new PrintWriter(filename, "UTF-8");
                 //writer.println(builder.buildInputMessage(operation, context));
@@ -186,6 +200,7 @@ public class App
             System.err.println(e.toString());
             System.exit(1);
         } catch (org.reficio.ws.SoapBuilderException e) {
+            // unable to create xml
             System.err.println(e.toString());
             System.exit(1);
         }

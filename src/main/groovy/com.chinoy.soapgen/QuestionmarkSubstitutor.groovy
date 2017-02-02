@@ -1,16 +1,26 @@
 package com.chinoy.soapgen
 
-/**
- * Created by hussain.chinoy on 2/1/17.
- */
-class QuestionmarkSubstitutor {
-    String ReplaceWithNameSlug(String xml) {
-        def slurper = new XmlSlurper().parseText(xml)
-        println slurper.findAll { it.text() == "?" }
-            .each {
-                println it.node().name
-            }
+import groovy.xml.StreamingMarkupBuilder
+import groovy.xml.XmlUtil
 
-        return xml;
+class QuestionmarkSubstitutor {
+    String ReplaceWithNameSlug(String xml, boolean debug) {
+        def slurper = new XmlSlurper().parseText(xml)
+        def counter = 0
+        slurper.depthFirst().findAll { it.text() == '?' }
+            .each {
+                el ->
+                    counter++
+                    if (debug) {
+                        println "$counter ${el.name()}"
+                    }
+                    // ftl format
+                    el.replaceBody "\${${el.name()}}"
+            }
+        return toPrettyXml(slurper);
+    }
+
+    def static toPrettyXml(xml) {
+        XmlUtil.serialize(new StreamingMarkupBuilder().bind { mkp.yield xml })
     }
 }
